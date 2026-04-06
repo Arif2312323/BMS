@@ -1,12 +1,12 @@
 import { Types } from "mongoose";
-import { IMovie } from "../modules/movie/movie.interface";
-import { IShow } from "../modules/show/show.interface";
-import { IThreater } from "../modules/theater/theater.interface";
+import { IMovie } from "../module/movie/movie.interface";
+import { IShow } from "../module/show/show.interface";
+import {ITheater}  from "../module/theater/theater.interface";
 
 type GroupedShow = {
   movie: Types.ObjectId | IMovie;
   theater: {
-    theaterDetails: Types.ObjectId | IThreater;
+    theaterDetails: Types.ObjectId | ITheater;
     shows: Array<{
       _id: string;
       date: string;

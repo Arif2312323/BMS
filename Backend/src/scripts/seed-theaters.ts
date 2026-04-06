@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { TheaterModel } from "../modules/theater/theater.model";
+import TheaterModel from "../module/theater/theater.model";
 import { config } from "../config/config";
 
 dotenv.config();

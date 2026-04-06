@@ -1,9 +1,9 @@
 // seed/showSeeder.ts
 import mongoose from "mongoose";
 import dayjs from "dayjs";
-import { MovieModel } from "../modules/movie/movie.model";
-import { TheaterModel } from "../modules/theater/theater.model";
-import { ShowModel } from "../modules/show/show.model";
+import MovieModel from "../module/movie/movie.model";
+import TheaterModel from "../module/theater/theater.model";
+import ShowModel from "../module/show/show.model";
 import { config } from "../config/config";
 import { generateSeatLayout } from "../utils/index"
 
@@ -48,9 +48,8 @@ export const seedShow = async () => {
 //  const theatres = await TheaterModel.find({});
 
   
-  const movieIds = ["68e224451aeabaafaa43ac58", "68e224451aeabaafaa43ac57"];
-  const movies = await MovieModel.find({ _id: { $in: movieIds } });
-  const theatres = await TheaterModel.find({ state: "West Bengal" });
+  const movies = await MovieModel.find({});
+  const theatres = await TheaterModel.find({});
 
   if (!movies.length || !theatres.length) {
     console.error("Movies or theatres not found. Please check IDs or state name.");

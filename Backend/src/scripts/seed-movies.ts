@@ -1,7 +1,7 @@
 // File: src/modules/movie/movie.seed.ts
 
 import mongoose from "mongoose";
-import { MovieModel } from "../modules/movie/movie.model";
+import MovieModel  from "../module/movie/movie.model";
 import { config } from "../config/config";
 
 const movies = [
