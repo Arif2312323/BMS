@@ -24,6 +24,10 @@ function App() {
         console.error('Error fetching location:', err);
         dispatch(setError('Failed to fetch location data'));
       }
+      finally
+      {
+        dispatch(setLoading(0));
+      }
     };
 
     if (navigator.geolocation) {
@@ -50,7 +54,7 @@ function App() {
           <Route path="/" element={<Home/>} />
           <Route path="/profile" element={<Profile/>} />
           <Route path="/movies" element={<Movies/>} />
-          <Route path="/movies/:id" element={<MovieDetails/>} />
+          <Route path="/movies/:state/:movieName/:id/ticket" element={<MovieDetails/>} />
         </Routes>
       </main>
       <Footer />

@@ -2,7 +2,6 @@ import React from 'react'
 import { events } from '../utils/constants'
 
 const LiveEvents = () => {
- console.log(events)
   return (
     <div className='max-w-screen-xl mx-auto px-4 py-10'>
       <h2 className='text-2xl font-semibold mb-6'>The Best Of Live Events</h2>
