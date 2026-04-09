@@ -1,8 +1,21 @@
 import React from 'react'
 import { languages,allMovies } from '../../utils/constants'
 import MovieCard from './MovieCard'
+import { Navigate } from 'react-router-dom'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 
 const MovieList = () => {
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const {data : recMovies} = useQuery({
+    queryKey : ["recommended movies"],
+    queryFn : async () => {
+      const res = await fetch(`${url}/movies/recommended`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    placeholderData : keepPreviousData,
+  })
+  const movies = recMovies?.movies;
   return (
     <div className='w-full md:w-3/4 p-4'>
       <div className='flex flex-wrap gap-2 mb-4'>
@@ -25,8 +38,8 @@ const MovieList = () => {
       </div>
       <div className='flex flex-wrap gap-6'>
         {
-          allMovies.map((movie, i) => (
-            <MovieCard key={i} movie={movie} />
+          movies?.map((movie, i) => (
+            <MovieCard key={i} movie={movie}/>
           ))
         }
       </div>

@@ -24,7 +24,7 @@ const RecommendedMovies = () => {
       {/* Section Header */}
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold">Recommended Movies</h2>
-        <button className="text-red-500 font-medium hover:text-red-600 cursor-pointer">
+        <button className="text-red-500 font-medium hover:text-red-600 cursor-pointer" onClick={()=>{navigate("/movies")}}>
           See All
         </button>
       </div>

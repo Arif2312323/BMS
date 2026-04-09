@@ -8,7 +8,7 @@ export default function Header() {
       {/* Top bar */}
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2">
+        <a href="/" className="flex items-center gap-2">
           <span className="grid h-8 w-8 place-items-center rounded bg-pink-600 text-xs font-bold text-white">
             BMS
           </span>
@@ -67,8 +67,8 @@ export default function Header() {
             {["Movies", "Stream", "Events", "Plays", "Sports", "Activities"].map(
               (item) => (
                 <a
+                  href={item === "Movies" ? "/movies" : "#"}
                   key={item}
-                  href="#"
                   className="hover:text-gray-900"
                 >
                   {item}

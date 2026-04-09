@@ -2,8 +2,10 @@ import React, { useState } from 'react'
 import dayjs from 'dayjs'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { filters } from '../utils/constants'
+import {useNavigate } from 'react-router-dom'
 
 const TheaterListings = ({ movieId, state }) => {
+    const navigate = useNavigate();
     const url = import.meta.env.VITE_BACKEND_URL;
     const [selectedDate, setSelectedDate] = useState(0)
     const [selectedFilters, setSelectedFilters] = useState([])
@@ -80,6 +82,7 @@ const TheaterListings = ({ movieId, state }) => {
                 {data?.map((item, i) => {
                     const theatre = item.theater.theaterDetails;
                     const shows = item.theater.shows;
+                    const movie = item.movie;
 
                     return (
                         <div key={i} className='bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden'>
@@ -114,22 +117,26 @@ const TheaterListings = ({ movieId, state }) => {
                             <div className='border-t border-dashed border-gray-100 mx-5' />
 
                             <div className='px-5 py-6 flex flex-wrap gap-4'>
-                                {shows.map((show, j) => (
-                                    <div key={j} className='group relative'>
-                                        <button
-                                            className='cursor-pointer flex flex-col items-center px-4 py-2 rounded border border-gray-200 text-sm font-medium transition min-w-[100px] hover:border-green-500'
-                                        >
-                                            <span className='font-bold text-green-600'>{show.startTime}</span>
-                                            <span className='text-[9px] mt-[2px] text-gray-400 uppercase tracking-tighter'>
-                                                {show.format} • {show.audioType}
-                                            </span>
-                                        </button>
-                                        <div className='hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none'>
-                                            Available
-                                            <div className='absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black'></div>
+                                {shows.map((show, j) => {
+                                    const theaterId = theatre._id;
+                                    return (
+                                        <div key={j} className='group relative'>
+                                            <button
+                                                onClick={()=>(navigate(`/movies/${movieId}/${movie.title}/${state}/theater/${theaterId}/show/${show._id}/seat-layout`))}
+                                                className='cursor-pointer flex flex-col items-center px-4 py-2 rounded border border-gray-200 text-sm font-medium transition min-w-[100px] hover:border-green-500'
+                                            >
+                                                <span className='font-bold text-green-600'>{show.startTime}</span>
+                                                <span className='text-[9px] mt-[2px] text-gray-400 uppercase tracking-tighter'>
+                                                    {show.format} • {show.audioType}
+                                                </span>
+                                            </button>
+                                            <div className='hidden group-hover:block absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-black text-white text-[10px] px-2 py-1 rounded whitespace-nowrap z-10 pointer-events-none'>
+                                                Available
+                                                <div className='absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-black'></div>
+                                            </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    )
+                                })}
                             </div>
 
                             <div className='px-5 pb-4 flex gap-4 text-[10px] text-gray-400 uppercase font-semibold tracking-wider'>
