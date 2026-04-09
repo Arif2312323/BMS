@@ -44,7 +44,7 @@ export default function Header() {
         {/* Location + Sign in */}
         <div className="hidden items-center gap-4 md:flex">
           <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900">
-            {loc.isLoading ? 'Loading...' : (loc.error ? 'Location unavailable' : (loc.location?.address.city || 'West Bengal'))}
+            {loc.isLoading ? 'Loading...' : (loc.error ? 'Location unavailable' : (loc.location?.address?.city || 'West Bengal'))}
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"
