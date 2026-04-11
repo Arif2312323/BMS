@@ -38,3 +38,12 @@ export const updateUser = async (id : string, userData : Partial<IUser>) => {
         throw error;
     }       
 }
+
+export const getUserByEmail = async (email : string) => {
+    try {
+        const user = await UserModel.findOne({email});
+        return user;
+    } catch (error) {
+        throw error;
+    }
+}

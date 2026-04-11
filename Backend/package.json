@@ -21,10 +21,10 @@
     "dotenv": "^17.0.1",
     "express": "^5.1.0",
     "http-errors": "^2.0.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "mailgen": "^2.0.29",
     "mongoose": "^8.16.1",
-    "nodemailer": "^7.0.4",
+    "nodemailer": "^7.0.13",
     "zod": "^3.25.67"
   },
   "devDependencies": {
