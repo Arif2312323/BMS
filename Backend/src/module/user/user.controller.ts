@@ -33,8 +33,10 @@ export const getAllUsers = async (req: Request, res: Response, next: NextFunctio
 // 3. Get User By Id
 export const getUserById = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const user = await UserService.getUserById(req.params.id);
-
+        const userId = req.params.id;
+        let user;
+        if(userId == "me") user = req.user;
+        else user = await UserService.getUserById(userId);
         if(!user){
             res.status(404).json({
                 success: false,
@@ -75,3 +77,25 @@ export const updateUser = async (req: Request, res: Response, next: NextFunction
         next(error);
     }
 }
+
+export const activateUser = async (req: Request, res: Response, next: NextFunction):Promise<void> => {
+    try {
+        const user = await UserService.activateUser(req.params.id);
+        if(!user){
+            res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+            return;
+        }    
+        user.activateUser = true;
+        user.save();
+        res.status(200).json({
+            success: true,
+            message: "User activated successfully",
+            data: user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};

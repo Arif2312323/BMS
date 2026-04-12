@@ -20,7 +20,7 @@ export const storeRefreshToken = async (refreshToken : string, userId : string) 
     }
 }
 
-export const verifyToken = (token:string)=>{
+export const verifyToken = (token:any)=>{
     return jwt.verify(token, config.jwtSecretKey as string);
 }
 

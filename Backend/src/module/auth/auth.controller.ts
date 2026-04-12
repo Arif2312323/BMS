@@ -86,17 +86,19 @@ export const verify = async(req:Request,res:Response,next:NextFunction) => {
 
     await storeRefreshToken(refreshToken, user._id as string);
 
+    const isProduction = process.env.NODE_ENV === "production";
+
     res.cookie("refreshToken", refreshToken, {
         httpOnly : true,
-        secure : true,
-        sameSite : "strict",
+        secure : isProduction,
+        sameSite : isProduction ? "strict" : "lax",
         maxAge : 7*24*60*60*1000
     });
 
     res.cookie("accessToken", accessToken, {
         httpOnly : true,
-        secure : true,
-        sameSite : "strict",
+        secure : isProduction,
+        sameSite : isProduction ? "strict" : "lax",
         maxAge : 60*60*1000
     });
 

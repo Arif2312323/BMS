@@ -47,3 +47,12 @@ export const getUserByEmail = async (email : string) => {
         throw error;
     }
 }
+
+export const activateUser = async (id : string) => {
+    try {
+        const user = await UserModel.findByIdAndUpdate(id, {activateUser: true}, {new: true});
+        return user;
+    } catch (error) {
+        throw error;
+    }   
+}

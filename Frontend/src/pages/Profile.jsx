@@ -1,21 +1,23 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ordersData } from '../utils/constants'
-
-// Static user data
-const user = {
-  name: "Rahul Sharma",
-  email: "rahul.sharma@gmail.com",
-  phone: "+91 98765 43210",
-  age: 28,
-  location: "Kolkata, West Bengal",
-  memberSince: "January 2023",
-  avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul",
-  totalBookings: ordersData.length,
-}
+import { useSelector } from 'react-redux'
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile')
-
+  const user = useSelector((state)=>state.user);
+  const loc = useSelector((state)=>state.location);
+  useEffect(()=>{
+    const f = async() => {
+      const res = await fetch(`${url}/users/me`,{
+        method : "GET",
+        credentials : "include",
+      })
+      if(!res.ok) return;
+      const userData = await res.json();
+      dispatch(setUser(userData.data));
+    };
+    f();
+  },[])
   return (
     <div className='min-h-screen bg-[#F2F2F2]'>
 
@@ -32,8 +34,7 @@ const Profile = () => {
             {/* Avatar */}
             <div className='relative flex-shrink-0'>
               <img
-                src={user.avatar}
-                alt={user.name}
+                alt={user?.name}
                 className='w-28 h-28 rounded-full border-4 border-white shadow-lg bg-gray-100'
               />
               <button className='absolute bottom-1 right-1 bg-[#F84464] text-white rounded-full w-7 h-7 flex items-center justify-center shadow hover:bg-[#e03055] transition text-sm'>
@@ -44,17 +45,17 @@ const Profile = () => {
             {/* User Info */}
             <div className='flex-1 text-center md:text-left'>
               <div className='flex flex-col md:flex-row md:items-center gap-2 justify-center md:justify-start'>
-                <h1 className='text-2xl font-bold text-gray-800'>{user.name}</h1>
+                <h1 className='text-2xl font-bold text-gray-800'>{user?.name}</h1>
                 <span className='bg-[#F84464] text-white text-xs px-3 py-1 rounded-full font-medium w-fit mx-auto md:mx-0'>
                   Premium Member
                 </span>
               </div>
-              <p className='text-gray-400 text-sm mt-1'>Member since {user.memberSince}</p>
+              <p className='text-gray-400 text-sm mt-1'>Member since {Date.now()-user?.createdAt}</p>
 
               {/* Stats Row */}
               <div className='flex gap-6 mt-4 justify-center md:justify-start'>
                 <div className='text-center'>
-                  <p className='text-xl font-bold text-gray-800'>{user.totalBookings}</p>
+                  <p className='text-xl font-bold text-gray-800'>NA</p>
                   <p className='text-xs text-gray-400'>Bookings</p>
                 </div>
                 <div className='w-px bg-gray-200' />
@@ -96,11 +97,7 @@ const Profile = () => {
 
         {/* ── Profile Tab ── */}
         {activeTab === 'profile' && (
-          <div className='bg-white rounded-2xl shadow-sm mt-6 p-6'>
-            <h2 className='text-lg font-semibold text-gray-700 mb-6'>Personal Information</h2>
-
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-
               {/* Name */}
               <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
                 <div className='w-10 h-10 bg-pink-100 rounded-full flex items-center justify-center text-lg'>
@@ -108,10 +105,9 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Full Name</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.name}</p>
+                  <p className='text-sm font-semibold text-gray-700'>{user?.name}</p>
                 </div>
               </div>
-
               {/* Email */}
               <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
                 <div className='w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-lg'>
@@ -119,32 +115,9 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Email Address</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.email}</p>
+                  <p className='text-sm font-semibold text-gray-700'>{user?.email}</p>
                 </div>
               </div>
-
-              {/* Phone */}
-              <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
-                <div className='w-10 h-10 bg-green-100 rounded-full flex items-center justify-center text-lg'>
-                  📱
-                </div>
-                <div>
-                  <p className='text-xs text-gray-400'>Phone Number</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.phone}</p>
-                </div>
-              </div>
-
-              {/* Age */}
-              <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
-                <div className='w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center text-lg'>
-                  🎂
-                </div>
-                <div>
-                  <p className='text-xs text-gray-400'>Age</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.age} years</p>
-                </div>
-              </div>
-
               {/* Location */}
               <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
                 <div className='w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-lg'>
@@ -152,10 +125,9 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Location</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.location}</p>
+                  <p className='text-sm font-semibold text-gray-700'>{loc.location?.address?.city}</p>
                 </div>
               </div>
-
               {/* Member Since */}
               <div className='flex items-center gap-4 p-4 bg-gray-50 rounded-xl'>
                 <div className='w-10 h-10 bg-red-100 rounded-full flex items-center justify-center text-lg'>
@@ -163,12 +135,12 @@ const Profile = () => {
                 </div>
                 <div>
                   <p className='text-xs text-gray-400'>Member Since</p>
-                  <p className='text-sm font-semibold text-gray-700'>{user.memberSince}</p>
+                  <p className='text-sm font-semibold text-gray-700'>
+                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A'}
+                  </p>
                 </div>
               </div>
-
             </div>
-          </div>
         )}
 
         {/* ── Bookings Tab ── */}

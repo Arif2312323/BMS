@@ -1,5 +1,6 @@
 import { Router } from "express";
 import * as UserController from "./user.controller";
+import { isVerifiedUser } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
@@ -10,9 +11,11 @@ router.post("/", UserController.createUser);
 router.get("/", UserController.getAllUsers);
 
 // 3. Get User By Id
-router.get("/:id", UserController.getUserById);
+router.get("/:id", isVerifiedUser, UserController.getUserById);
 
 // 4. Update User
 router.put("/:id", UserController.updateUser);
+
+router.post("/activate/:id",UserController.activateUser);
 
 export default router;
