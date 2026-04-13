@@ -4,7 +4,9 @@ import mongoose from "mongoose";
 
 const connectDB = async ()=>{
     try{
-        await mongoose.connect(config.databaseUrl as string)
+        await mongoose.connect(config.databaseUrl as string,{
+            serverSelectionTimeoutMS: 5000,
+        })
         console.log("Connected to Database")
     }
     catch(error){

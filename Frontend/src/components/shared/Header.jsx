@@ -1,8 +1,31 @@
 // Header.jsx
-import React from "react";
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import { FaUserCircle } from "react-icons/fa";
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleSignIn } from "../../redux/signInSlice";
+import { setUser } from "../../redux/userSlice";
+import { useNavigate } from "react-router-dom";
 export default function Header() {
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const dispatch = useDispatch();
   const loc = useSelector((state)=>state.location);
+  const navigate = useNavigate();
+  const user = useSelector((state)=>state.user);
+  useEffect(()=>{
+    const f = async() => {
+      const res = await fetch(`${url}/users/me`,{
+        method : "GET",
+        credentials : "include",
+      })
+      if(!res.ok) return;
+      const userData = await res.json();
+      dispatch(setUser(userData.data));
+    };
+    f();
+  },[])
+  const handleSignInClick = ()=>{
+    dispatch(toggleSignIn());
+  };
   return (
     <header className="w-full border-b border-gray-200 bg-white">
       {/* Top bar */}
@@ -44,7 +67,7 @@ export default function Header() {
         {/* Location + Sign in */}
         <div className="hidden items-center gap-4 md:flex">
           <button className="flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900">
-            {loc.isLoading ? 'Loading...' : (loc.error ? 'Location unavailable' : (loc.location?.address.city || 'West Bengal'))}
+            {loc.isLoading ? 'Loading...' : (loc.error ? 'Location unavailable' : (loc.location?.address?.city || 'West Bengal'))}
             <svg className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path
                 fillRule="evenodd"
@@ -54,9 +77,19 @@ export default function Header() {
             </svg>
           </button>
 
-          <button className="rounded-md bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700">
-            Sign in
-          </button>
+         {
+           user ?
+           <div className="flex items-center gap-2 cursor-pointer" onClick={()=>navigate("/profile")}>
+              <FaUserCircle size={28} color="#ff4444" />
+              <span className="text-black text-sm font-semibold capitalize">
+                {user.name}
+              </span>
+            </div>
+            :
+            <button onClick={handleSignInClick} className="rounded-md bg-pink-600 px-4 py-2 text-sm font-medium text-white hover:bg-pink-700  cursor-pointer">
+              Sign in
+            </button>
+         }
         </div>
       </div>
 

@@ -2,15 +2,18 @@ import { Routes, Route, useMatch } from "react-router-dom"
 import Header from "./components/shared/Header"
 import Footer from "./components/shared/Footer"
 import { useEffect } from "react"
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { setLoading, setLocation, setError } from "./redux/locationSlice"
 import Home from "./pages/Home"
 import Movies from "./pages/Movies"
 import MovieDetails from "./pages/MovieDetails"
 import Profile from "./pages/Profile"
 import SeatLayout from "./pages/SeatLayout"
+import Checkout from "./pages/Checkout"
+import SignInModal from "./components/auth/signInModal"
 
 function App() {
+  const isSignInOpen = useSelector((state) => state.isSignInModalOpen);
   const dispatch = useDispatch();
   useEffect(()=>{
     dispatch(setLoading(1));
@@ -51,10 +54,14 @@ function App() {
   const isSeatLayoutPage = useMatch(
     "/movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
   );
+  const isCheckOutPage = useMatch(
+    "/shows/:showId/:state/checkout"
+  )
 
   return (
     <div className="min-h-screen flex flex-col">
-      {!isSeatLayoutPage && <Header />}
+      {isSignInOpen && <SignInModal />}
+      {!isSeatLayoutPage && !isCheckOutPage && <Header />}
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home/>} />
@@ -62,9 +69,10 @@ function App() {
           <Route path="/movies" element={<Movies/>} />
           <Route path="/movies/:state/:movieName/:id/ticket" element={<MovieDetails/>} />
           <Route path="/movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout" element={<SeatLayout/>} />
+          <Route path = "/shows/:showId/:state/checkout" element = {<Checkout/>} />
         </Routes>
       </main>
-      {!isSeatLayoutPage&&<Footer />}
+      {!isSeatLayoutPage&& !isCheckOutPage && <Footer />}
     </div>
   )
 }
