@@ -8,6 +8,8 @@ const _config = {
     hashSecret : process.env.HASH_SECRET as string,
     emailUsename : process.env.EMAIL_USERNAME as string,
     emailPassword : process.env.EMAIL_PASSWORD as string,
+    redisHost : process.env.REDIS_HOST as string,
+    redisPort : process.env.REDIS_PORT as string,
 }
 
 export const config = Object.freeze(_config);

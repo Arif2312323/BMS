@@ -1,38 +1,8 @@
-// BookingReviewPage.jsx
-
-// =====================
-// Static Data
-// =====================
-const show = {
-  _id: "show123",
-  date: "12-10-2025",
-  startTime: "07:30 PM",
-  movie: {
-    title: "Interstellar",
-    certification: "UA13+",
-    languages: ["English", "Hindi"],
-    format: ["2D", "IMAX"],
-    posterUrl:
-      "https://upload.wikimedia.org/wikipedia/en/b/bc/Interstellar_film_poster.jpg",
-  },
-  theatre: {
-    name: "PVR Icon",
-    city: "Kolkata",
-    state: "West Bengal",
-  },
-};
-
-const selectedSeats = [
-  { type: "PREMIUM", seatNumber: "B5", price: 250 },
-  { type: "EXECUTIVE", seatNumber: "B6", price: 250 },
-];
-
-const userDetails = {
-  name: "Amrit Raj",
-  phone: "+91-9876543210",
-  email: "amrit@example.com",
-  state: "West Bengal",
-};
+import React, { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import { useParams, useNavigate } from "react-router-dom";
+import { socket } from "../utils/socket";
 
 const TAX_RATE = 0.05;
 
@@ -52,6 +22,7 @@ const calculateTotalAmount = (amount, tax) => {
 };
 
 const formatDate = (dateString) => {
+  if (!dateString) return "";
   const [day, month] = dateString.split("-");
   const months = [
     "January", "February", "March", "April",
@@ -65,33 +36,40 @@ const formatDate = (dateString) => {
 // Components
 // =====================
 
-const Navbar = () => (
+const Navbar = ({ timer }) => (
   <nav className="border-b px-6 py-3 flex justify-between items-center">
-    <div className="flex items-center gap-2">
-      <span className="text-pink-500 font-bold text-xl">🎬 bookMyScreen</span>
+    <a href="/" className="flex items-center gap-2">
+      <span className="grid h-8 w-8 place-items-center rounded bg-pink-600 text-xs font-bold text-white">
+        BMS
+      </span>
+      <span className="text-sm font-semibold text-gray-900">
+        bookMyScreen
+      </span>
+    </a>
+    <div className="flex items-center gap-4">
+      <h1 className="text-lg font-bold">Review your booking</h1>
+      <span className="bg-red-100 text-red-600 px-3 py-1 rounded-full font-bold tabular-nums">
+        {timer}
+      </span>
     </div>
-    <h1 className="text-lg font-bold">Review your booking</h1>
-    <button className="bg-red-500 text-white px-4 py-2 rounded font-semibold hover:bg-red-600 transition">
-      Sign in
-    </button>
   </nav>
 );
 
-const MovieInfo = ({ movie, theatre }) => (
+const MovieInfo = ({ movie, theater }) => (
   <div className="flex items-start gap-4">
     <img
-      src={movie.posterUrl}
-      alt={movie.title}
+      src={movie?.posterUrl}
+      alt={movie?.title}
       className="w-16 h-20 object-cover rounded"
     />
     <div>
-      <h2 className="text-xl font-bold">{movie.title}</h2>
+      <h2 className="text-xl font-bold">{movie?.title}</h2>
       <p className="text-gray-500 text-sm">
-        {movie.certification} • {movie.languages.join(", ")} •{" "}
-        {movie.format.join(", ")}
+        {movie?.certification} • {movie?.languages?.join(", ")} •{" "}
+        {movie?.format?.join(", ")}
       </p>
       <p className="text-gray-500 text-sm">
-        {theatre.name}, {theatre.city}, {theatre.state}
+        {theater?.name}, {theater?.city}, {theater?.state}
       </p>
     </div>
   </div>
@@ -113,8 +91,8 @@ const SeatDetails = ({ seats, orderAmount }) => (
           {seats.length} ticket{seats.length > 1 ? "s" : ""}
         </p>
         {seats.map((seat) => (
-          <p key={seat.seatNumber} className="text-gray-500 text-sm">
-            {seat.type} - {seat.seatNumber}
+          <p key={seat.id} className="text-gray-500 text-sm">
+            {seat.row}-{seat.number}
           </p>
         ))}
       </div>
@@ -165,10 +143,9 @@ const UserDetailsCard = ({ user }) => (
   <div className="border rounded-lg p-4 flex items-start gap-3">
     <span className="text-gray-400 text-2xl">👤</span>
     <div>
-      <p className="font-semibold text-gray-800">{user.name}</p>
-      <p className="text-gray-500 text-sm">{user.phone}</p>
-      <p className="text-gray-500 text-sm">{user.email}</p>
-      <p className="text-gray-500 text-sm">{user.state}</p>
+      <p className="font-semibold text-gray-800">{user?.name}</p>
+      <p className="text-gray-500 text-sm">{user?.email}</p>
+      <p className="text-gray-500 text-sm">{user?.state}</p>
     </div>
   </div>
 );
@@ -194,27 +171,77 @@ const ProceedToPayButton = ({ totalAmount, onProceed }) => (
 // Main Page
 // =====================
 const BookingReviewPage = () => {
-  // calculations
+  const { showId } = useParams();
+  const navigate = useNavigate();
+  const url = import.meta.env.VITE_BACKEND_URL;
+
+  const [timeLeft, setTimeLeft] = useState(300); // 300 seconds = 5 minutes
+  const selectedSeats = useSelector((state) => state.selectedSeats);
+  const user = useSelector((state) => state.user);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      socket.emit("unlock-seats", {
+        showId: showId,
+        seatIds: selectedSeats.map((s) => s.id),
+        userId: user?._id,
+      });
+      navigate(-1); 
+      return;
+    }
+
+    const timerId = setInterval(() => {
+      setTimeLeft((prevTime) => prevTime - 1);
+    }, 1000);
+
+    return () => clearInterval(timerId);
+  }, [timeLeft, navigate, showId, selectedSeats, user]);
+  useEffect(() => {
+    return () => {
+      socket.emit("unlock-seats", {
+        showId: showId,
+        seatIds: selectedSeats.map((s) => s.id),
+        userId: user?._id,
+      });
+    };
+  }, [showId, selectedSeats, user]);
+
+  const { data: show, isLoading } = useQuery({
+    queryKey: ["GetShowData", showId],
+    queryFn: async () => {
+      const res = await fetch(`${url}/shows/${showId}`);
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+  });
+
   const orderAmount = calculateOrderAmount(selectedSeats);
   const tax = calculateTax(orderAmount, TAX_RATE);
   const totalAmount = calculateTotalAmount(orderAmount, tax);
+
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!show) return <div className="min-h-screen flex items-center justify-center">Show not found.</div>;
+
   const formattedDate = formatDate(show.date);
 
-  // will be replaced with actual payment logic
+  const formatTimer = (seconds) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  };
+
   const handleProceedToPay = () => {
     console.log("Proceeding to pay:", totalAmount);
   };
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Navbar */}
-      <Navbar />
+      <Navbar timer={formatTimer(timeLeft)} />
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-6 py-8 flex gap-8">
+      <div className="max-w-6xl mx-auto px-6 py-8 flex flex-col md:flex-row gap-8">
         {/* Left Section */}
         <div className="flex-1 space-y-4">
-          <MovieInfo movie={show.movie} theatre={show.theatre} />
+          <MovieInfo movie={show.movie} theater={show.theater} />
           <ShowDetails date={formattedDate} startTime={show.startTime} />
           <SeatDetails seats={selectedSeats} orderAmount={orderAmount} />
           <CancellationPolicy />
@@ -222,7 +249,7 @@ const BookingReviewPage = () => {
         </div>
 
         {/* Right Section */}
-        <div className="w-80 space-y-4">
+        <div className="w-full md:w-80 space-y-4">
           <h2 className="text-lg font-bold">Payment Summary</h2>
           <PaymentSummary
             orderAmount={orderAmount}
@@ -231,7 +258,7 @@ const BookingReviewPage = () => {
             taxRate={TAX_RATE}
           />
           <h2 className="text-lg font-bold">Your details</h2>
-          <UserDetailsCard user={userDetails} />
+          <UserDetailsCard user={user} />
           <TermsAndConditions />
           <ProceedToPayButton
             totalAmount={totalAmount}

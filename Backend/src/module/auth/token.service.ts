@@ -4,7 +4,7 @@ import RefreshTokenModel from "./refresh.model";
 
 export const generateToken = async (payload : any) => {
     const accessToken = jwt.sign(payload, config.jwtSecretKey as string, {
-        expiresIn : "1h"
+        expiresIn : "7d"
     });
     const refreshToken = jwt.sign(payload, config.jwtSecretKey as string, {
         expiresIn : "7d"

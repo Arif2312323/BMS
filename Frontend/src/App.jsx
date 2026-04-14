@@ -1,4 +1,4 @@
-import { Routes, Route, useMatch } from "react-router-dom"
+import { Routes, Route, useMatch, Navigate } from "react-router-dom"
 import Header from "./components/shared/Header"
 import Footer from "./components/shared/Footer"
 import { useEffect } from "react"
@@ -11,8 +11,11 @@ import Profile from "./pages/Profile"
 import SeatLayout from "./pages/SeatLayout"
 import Checkout from "./pages/Checkout"
 import SignInModal from "./components/auth/signInModal"
+import { setSelectedSeats } from "./redux/selectedSeatsSlice"
+import { setUser } from "./redux/userSlice"
 
 function App() {
+  const url = import.meta.env.VITE_BACKEND_URL;
   const isSignInOpen = useSelector((state) => state.isSignInModalOpen);
   const dispatch = useDispatch();
   useEffect(()=>{
@@ -33,7 +36,6 @@ function App() {
         dispatch(setLoading(0));
       }
     };
-
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position)=>{
@@ -51,12 +53,29 @@ function App() {
     }
   },[]);
 
+  useEffect(()=>{
+    const f = async() => {
+      const res = await fetch(`${url}/users/me`,{
+        method : "GET",
+        credentials : "include",
+      })
+      if(!res.ok) return;
+      const userData = await res.json();
+      dispatch(setUser(userData.data));
+    };
+    f();
+  },[])
+
   const isSeatLayoutPage = useMatch(
     "/movies/:movieId/:movieName/:state/theater/:theaterId/show/:showId/seat-layout"
   );
   const isCheckOutPage = useMatch(
     "/shows/:showId/:state/checkout"
   )
+  if(!isCheckOutPage && !isSeatLayoutPage)
+  {
+    dispatch(setSelectedSeats([]));
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

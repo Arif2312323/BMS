@@ -1,5 +1,5 @@
 // Header.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { FaUserCircle } from "react-icons/fa";
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSignIn } from "../../redux/signInSlice";

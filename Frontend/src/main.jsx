@@ -16,7 +16,6 @@ const queryClient = new QueryClient({
 });
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
     <Provider store={store}>
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
@@ -24,5 +23,4 @@ createRoot(document.getElementById('root')).render(
         </QueryClientProvider>
       </BrowserRouter>
     </Provider>
-  </StrictMode>,
 )

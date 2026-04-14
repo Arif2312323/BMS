@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { ordersData } from '../utils/constants'
 import { useSelector } from 'react-redux'
 
@@ -6,18 +6,13 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile')
   const user = useSelector((state)=>state.user);
   const loc = useSelector((state)=>state.location);
-  useEffect(()=>{
-    const f = async() => {
-      const res = await fetch(`${url}/users/me`,{
-        method : "GET",
-        credentials : "include",
-      })
-      if(!res.ok) return;
-      const userData = await res.json();
-      dispatch(setUser(userData.data));
-    };
-    f();
-  },[])
+  const url = import.meta.env.VITE_BACKEND_URL;
+  const handleLogout = async () =>{
+    await fetch(`${url}/auth/logout`,{
+      method : "POST",
+      credentials : "include",
+    })
+  }
   return (
     <div className='min-h-screen bg-[#F2F2F2]'>
 
@@ -72,9 +67,14 @@ const Profile = () => {
             </div>
 
             {/* Edit Button */}
-            <button className='border border-[#F84464] text-[#F84464] px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#F84464] hover:text-white transition'>
-              Edit Profile
-            </button>
+            <div style={{display:'flex',flexDirection:'column', gap:'2rem'}}>
+              <button className='border border-[#F84464] text-[#F84464] px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#F84464] hover:text-white transition'>
+                Edit Profile
+              </button>
+              <button className='border border-[#F84464] text-[#F84464] px-5 py-2 rounded-lg text-sm font-medium hover:bg-[#F84464] hover:text-white transition' onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
 

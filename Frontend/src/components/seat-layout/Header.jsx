@@ -1,5 +1,10 @@
 import React from 'react'
 import dayjs from 'dayjs'
+import { useSelector } from 'react-redux';
+import { FaUserCircle } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 // A reusable Logo component based on image_1.png
 const BmsLogo = () => (
@@ -20,7 +25,8 @@ const Header = ({ showData }) => {
     // Example output: "31 May 2024 | 09:30 PM | PVR: Nexus, Koramangala, Bengaluru, Karnataka"
     const dateString = dayjs(showData?.date, "DD-MM-YYYY").format("D MMMM YYYY");
     const locationString = `${showData?.theater?.name}, ${showData?.theater?.city}, ${showData?.theater?.state}`;
-
+    const user = useSelector((state)=>state.user);
+    const navigate = useNavigate();
     return (
         <>
             <div className='bg-white shadow-md sticky top-0 z-50'>
@@ -41,9 +47,19 @@ const Header = ({ showData }) => {
 
                         {/* Right Side: Action Button (based on image_0.png) */}
                         {/* Using a color cohesive with the BMS logo box */}
-                        <button className='bg-[#EC1C7F] text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition hover:bg-[#d13754] flex-shrink-0'>
-                            Sign in
-                        </button>
+                        {
+                            user ?      
+                            <div className="flex items-center gap-2 cursor-pointer" onClick={()=>navigate("/profile")}>
+                              <FaUserCircle size={28} color="#ff4444" />
+                              <span className="text-black text-sm font-semibold capitalize">
+                                {user.name}
+                              </span>
+                            </div>
+                            :
+                            <button className='bg-[#EC1C7F] text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition hover:bg-[#d13754] flex-shrink-0'>
+                                Sign in
+                            </button>
+                        }
                     </div>
                 </div>
             </div>

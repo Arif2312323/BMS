@@ -1,14 +1,35 @@
 import React from "react";
+import { useSelector } from "react-redux";
+import { Navigate, useNavigate } from "react-router-dom";
+import { socket } from "../../utils/socket";
 
-const Footer = () => {
-    const isSelected = false;
+const Footer = ({selectedCount,totalPrice,isSelected,showId}) => {
+    
+    const loc = useSelector((state)=>state.location);
+    const selectedSeats = useSelector((state)=>state.selectedSeats);
+    const user = useSelector((state)=>state.user);
+    const state = loc.location?.address?.city;
+    const navigate = useNavigate();
+    console.log(user)
+    const handleClick = ()=>{
+        //request the backend to apply lock on the selected seats
+        socket.emit("lock-seats",{
+            showId: showId,
+            seatIds: selectedSeats.map(s => s.id),
+            userId : user._id,
+        })
+        navigate(`/shows/${showId}/${state}/checkout`)
+    }
     return (
         <>
             {isSelected ? (
                 <div className="bg-white py-3 px-6 flex items-center justify-between z-10">
-                    <p className="text-gray-700 font-medium text-base">2 Selected</p>
-                    <button className="bg-black cursor-pointer text-white px-6 py-2 rounded-lg font-semibold">
-                        Proceed
+                    <p className="text-gray-700 font-medium text-base">{`${selectedCount} selected`}</p>
+                    <button className="bg-black cursor-pointer text-white px-6 py-2 rounded-lg font-semibold" onClick={handleClick}>
+                        <div style={{display:'flex',alignItems:'center', gap:'0.3rem'}}>
+                            <span>₹</span>
+                            <p>{totalPrice}</p>
+                        </div>
                     </button>
                 </div>
             ) : (

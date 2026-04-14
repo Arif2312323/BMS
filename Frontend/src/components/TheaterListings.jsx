@@ -3,12 +3,16 @@ import dayjs from 'dayjs'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { filters } from '../utils/constants'
 import {useNavigate } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
+import { openSignIn } from '../redux/signInSlice'
 
 const TheaterListings = ({ movieId, state }) => {
     const navigate = useNavigate();
     const url = import.meta.env.VITE_BACKEND_URL;
     const [selectedDate, setSelectedDate] = useState(0)
     const [selectedFilters, setSelectedFilters] = useState([])
+    const user = useSelector((state)=>state.user);
+    const dispatch = useDispatch();
 
     const dates = Array.from({ length: 7 }, (_, i) => {
         const date = dayjs().add(i, 'day')
@@ -37,6 +41,15 @@ const TheaterListings = ({ movieId, state }) => {
         placeholderData: keepPreviousData
     })
 
+    const handleShowSelectionClick = (theaterId,movie,show)=>
+    {
+        if(user == null)
+        {
+            dispatch(openSignIn());
+            return;
+        }
+        navigate(`/movies/${movieId}/${movie.title}/${state}/theater/${theaterId}/show/${show._id}/seat-layout`);
+    }
     return (
         <>
             <div className='bg-white shadow-sm sticky top-0 z-20'>
@@ -122,7 +135,7 @@ const TheaterListings = ({ movieId, state }) => {
                                     return (
                                         <div key={j} className='group relative'>
                                             <button
-                                                onClick={()=>(navigate(`/movies/${movieId}/${movie.title}/${state}/theater/${theaterId}/show/${show._id}/seat-layout`))}
+                                                onClick={()=>{handleShowSelectionClick(theaterId,movie,show)}}
                                                 className='cursor-pointer flex flex-col items-center px-4 py-2 rounded border border-gray-200 text-sm font-medium transition min-w-[100px] hover:border-green-500'
                                             >
                                                 <span className='font-bold text-green-600'>{show.startTime}</span>
