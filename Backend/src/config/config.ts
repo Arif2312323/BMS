@@ -10,6 +10,8 @@ const _config = {
     emailPassword : process.env.EMAIL_PASSWORD as string,
     redisHost : process.env.REDIS_HOST as string,
     redisPort : process.env.REDIS_PORT as string,
+    razorpayApiKey : process.env.RAZORPAY_API_KEY as string,
+    razorpayApiKeySecret : process.env.RAZORPAY_API_KEY_SECRET as string,
 }
 
 export const config = Object.freeze(_config);

@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState, useEffect, use } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, data } from "react-router-dom";
 import { socket } from "../utils/socket";
+import {razorPayScript} from "../utils/constants"
 
 const TAX_RATE = 0.05;
 
@@ -160,12 +161,28 @@ const TermsAndConditions = () => (
 const ProceedToPayButton = ({ totalAmount, onProceed }) => (
   <button
     onClick={onProceed}
-    className="w-full bg-black text-white rounded-lg p-4 flex justify-between items-center hover:bg-gray-900 transition"
+    className="w-full bg-black text-white rounded-lg p-4 flex justify-between items-center hover:bg-gray-900 transition cursor-pointer"
   >
     <span className="font-bold text-lg">₹{totalAmount} TOTAL</span>
     <span className="font-semibold">Proceed To Pay</span>
   </button>
 );
+
+function loadScript(src)
+{
+  return new Promise((resolve)=>{
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = ()=>{
+      resolve(true);
+    }
+    script.onerror = ()=>{
+      resolve(false);
+    }
+
+    document.body.appendChild(script);
+  })
+}
 
 // =====================
 // Main Page
@@ -229,9 +246,98 @@ const BookingReviewPage = () => {
     const s = seconds % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
+  const verifyPaymentMutation = useMutation({
+    mutationFn: async (paymentData) => {
+      const res = await fetch(`${url}/payment/verify-payment`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(paymentData),
+      });
+      
+      if (!res.ok) {
+        throw new Error("Payment verification failed");
+      }
+      
+      return res.json();
+    },
+    onSuccess: (data) => {
+      console.log("Payment verified:", data);
+      navigate("/");
+    },
+    onError: (error) => {
+      console.error("Verification error:", error);
+      navigate("/");
+    }
+  });
+  const createOrderMutation = useMutation({
+    mutationFn : async (reqData)=>{
+      const res = await fetch(`${url}/payment/create-order`,{
+        method : "POST",
+        credentials : "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(reqData),
+      })
+      if(!res.ok)
+      {
+        console.log("Error in creating razorpay order");
+        return;
+      }
+      const data = res.json();
+      return data;
+    },
+    onSuccess: (data) => {
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_API_KEY,
+        amount: data.amount,
+        currency: data.currency,
+        name: "BookMyScreen",
+        description: "Secure Payment for your tickets",
+        order_id: data.id, 
+        handler: async function (response) {
+          console.log(response);
+          verifyPaymentMutation.mutate(response)
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        theme: { color: "#025cca" }
+      };
 
-  const handleProceedToPay = () => {
-    console.log("Proceeding to pay:", totalAmount);
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', function (response) {
+        console.error(response.error);
+      });
+      rzp.open();
+    },
+    onError: (err)=>{
+      console.log(err)
+    }
+  })
+
+  const handleProceedToPay = async () => {
+    try{
+      const res = await loadScript(razorPayScript);
+      if(!res)
+      {
+        console.log("Razorpay sdk failed");
+        return;
+      }
+      const reqData = {
+        amount : totalAmount
+      }
+
+      createOrderMutation.mutate(reqData);
+    }
+    catch(error)
+    {
+      console.log(error);
+    }
   };
 
   return (
