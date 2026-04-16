@@ -103,11 +103,12 @@ const SeatLayout = () => {
 
       <div className="sl-scroll" style={{ flex: 1, overflowY: 'auto', paddingTop: 28, paddingBottom: 140 }}>
         <div style={{ maxWidth: 860, margin: '0 auto', padding: '0 20px' }}>
-          
+
           <div className="sl-legend">
             <div className="sl-legend-item"><div className="sl-legend-box available" />Available</div>
             <div className="sl-legend-item"><div className="sl-legend-box selected" />Selected</div>
             <div className="sl-legend-item"><div className="sl-legend-box booked" />Booked</div>
+            <div className="sl-legend-item"><div className="sl-legend-box locked" />Locked</div>
           </div>
 
           {data?.seatLayout?.map((section, idx) => (
@@ -117,20 +118,23 @@ const SeatLayout = () => {
                 <span className="sl-row-label">{section.row}</span>
                 {section.seats.map((seat) => {
                   const seatId = `${section.row}-${seat.number}`;
-                  console.log(seatId)
                   const isSelected = selectedSeats.some((s) => s.id === seatId);
-                  // Replace the isOccupied line with this defensive check:
-                  const isOccupied = seat.status === "BOOKED" || lockedSeats.some(id => String(id).trim() === String(seatId).trim());
-                  console.log(isOccupied)
+                  const isBooked = seat.status === "BOOKED";
+                  const isLocked = !isBooked && lockedSeats.some(id => String(id).trim() === String(seatId).trim());
+                  const isOccupied = isBooked || isLocked;
+                  if(isBooked)
+                  {
+                    console.log(seat);
+                  }
                   return (
                     <button
                       key={seat.number}
                       disabled={isOccupied}
                       onClick={() => handleSeatSelect(section.row, seat.number, section.price)}
-                      className={`sl-seat ${isOccupied ? 'booked': isSelected ? 'selected' : ' '}`}
-                      title={`Row ${section.row} · Seat ${seat.number}`}
+                      className={`sl-seat ${isBooked ? 'booked' : isLocked ? 'locked' : isSelected ? 'selected' : ''}`}
+                      title={`Row ${section.row} · Seat ${seat.number}${isBooked ? ' (Booked)' : isLocked ? ' (Locked)' : ''}`}
                     >
-                      {isOccupied ? "X" : seat.number}
+                      {isBooked ? "✕" : isLocked ? "🔒" : seat.number}
                     </button>
                   );
                 })}

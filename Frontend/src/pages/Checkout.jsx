@@ -246,6 +246,38 @@ const BookingReviewPage = () => {
     const s = seconds % 60;
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
   };
+  const bookTicketMutation = useMutation({
+    mutationFn : async (reqData) =>{
+      const res = await fetch(`${url}/booking`,{
+        method : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials : "include",
+        body : JSON.stringify(reqData),
+      })
+      if(!res.ok)
+      {
+        console.log("Error in booking ticket");
+        return;
+      }
+      const data = await res.json();
+      return data;
+    },
+    onSuccess: (data) => {
+      console.log(data);
+      alert("Booking completed");
+      socket.emit("lock-seats", {
+        showId: show._id,
+        userId: user._id,
+        seatIds: selectedSeats
+      })
+      navigate(`/profile`);
+    },
+    onError: (err) => {
+      console.log(err);
+    }
+  })
   const verifyPaymentMutation = useMutation({
     mutationFn: async (paymentData) => {
       const res = await fetch(`${url}/payment/verify-payment`, {
@@ -265,7 +297,7 @@ const BookingReviewPage = () => {
     },
     onSuccess: (data) => {
       console.log("Payment verified:", data);
-      navigate("/");
+      navigate("/profile");
     },
     onError: (error) => {
       console.error("Verification error:", error);
@@ -301,6 +333,17 @@ const BookingReviewPage = () => {
         handler: async function (response) {
           console.log(response);
           verifyPaymentMutation.mutate(response)
+          const reqData = {
+            showId: show._id,
+            seats: selectedSeats.map(seat => seat.id),
+            paymentId: response.razorpay_payment_id,
+            bookingFee: {
+              ticketPrice: orderAmount,
+              total : totalAmount,
+              convenience: tax
+            }
+          }
+          bookTicketMutation.mutate(reqData)
         },
         prefill: {
           name: user?.name,

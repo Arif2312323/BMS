@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { ordersData } from '../utils/constants'
 import { useSelector } from 'react-redux'
+import BookingsTab from '../components/BookingsTab'
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('profile')
@@ -145,85 +146,7 @@ const Profile = () => {
 
         {/* ── Bookings Tab ── */}
         {activeTab === 'bookings' && (
-          <div className='mt-6 space-y-4'>
-            <h2 className='text-lg font-semibold text-gray-700'>Booking History</h2>
-
-            {ordersData.map((order, i) => (
-              <div key={i} className='bg-white rounded-2xl shadow-sm overflow-hidden'>
-                <div className='flex flex-col md:flex-row gap-4 p-5'>
-
-                  {/* Poster */}
-                  <img
-                    src={order.poster}
-                    alt={order.title}
-                    className='w-full md:w-24 h-36 md:h-32 object-cover rounded-xl flex-shrink-0'
-                  />
-
-                  {/* Details */}
-                  <div className='flex-1 space-y-1'>
-                    <div className='flex items-start justify-between gap-2'>
-                      <h3 className='font-bold text-gray-800 text-base leading-tight'>
-                        {order.title}
-                      </h3>
-                      <span className='bg-green-100 text-green-600 text-xs font-semibold px-2 py-1 rounded-full whitespace-nowrap'>
-                        Confirmed
-                      </span>
-                    </div>
-
-                    <p className='text-xs text-gray-400'>Booking ID:
-                      <span className='text-gray-600 font-medium ml-1'>{order.id}</span>
-                    </p>
-
-                    <div className='flex flex-wrap gap-2 mt-2'>
-                      <span className='bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full'>
-                        🎬 {order.format}
-                      </span>
-                      <span className='bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full'>
-                        📅 {order.datetime}
-                      </span>
-                      <span className='bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full'>
-                        🎭 {order.quantity} Tickets
-                      </span>
-                    </div>
-
-                    <p className='text-xs text-gray-500 mt-1'>
-                      🏛️ {order.cinema}
-                    </p>
-                    <p className='text-xs text-gray-500'>
-                      💺 Seats: <span className='font-medium text-gray-700'>{order.seats}</span>
-                    </p>
-                  </div>
-
-                  {/* Price & Actions */}
-                  <div className='flex flex-col items-end justify-between gap-3 min-w-[120px]'>
-                    <div className='text-right'>
-                      <p className='text-lg font-bold text-gray-800'>₹{order.total}</p>
-                      <p className='text-xs text-gray-400'>Total Paid</p>
-                    </div>
-
-                    <div className='flex flex-col gap-2 w-full'>
-                      <button className='bg-[#F84464] text-white text-xs py-2 px-4 rounded-lg hover:bg-[#e03055] transition font-medium'>
-                        Download Ticket
-                      </button>
-                      <button className='border border-gray-200 text-gray-500 text-xs py-2 px-4 rounded-lg hover:border-gray-400 transition'>
-                        View Details
-                      </button>
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Bottom Bar */}
-                <div className='bg-gray-50 px-5 py-2 flex flex-wrap gap-4 text-xs text-gray-400 border-t border-gray-100'>
-                  <span>💳 {order.paymentMethod}</span>
-                  <span>🕐 Booked on {order.bookingTime}</span>
-                  <span>🎟️ Ticket: ₹{order.ticket}</span>
-                  <span>⚡ Convenience Fee: ₹{order.fee}</span>
-                </div>
-
-              </div>
-            ))}
-          </div>
+          <BookingsTab userId={user._id}/>
         )}
 
       </div>
