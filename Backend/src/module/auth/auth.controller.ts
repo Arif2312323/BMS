@@ -91,14 +91,14 @@ export const verify = async(req:Request,res:Response,next:NextFunction) => {
     res.cookie("refreshToken", refreshToken, {
         httpOnly : true,
         secure : isProduction,
-        sameSite : isProduction ? "strict" : "lax",
+        sameSite : isProduction ? "none" : "lax",
         maxAge : 7*24*60*60*1000
     });
 
     res.cookie("accessToken", accessToken, {
         httpOnly : true,
         secure : isProduction,
-        sameSite : isProduction ? "strict" : "lax",
+        sameSite : isProduction ? "none" : "lax",
         maxAge : 7*24*60*60*1000
     });
 
@@ -111,8 +111,9 @@ export const logout = async (req:Request,res:Response,next:NextFunction)=>{
 
         await deleteRefreshToken(refreshToken);
 
-        res.clearCookie("accessToken");
-        res.clearCookie("refreshToken");
+        const isProduction = process.env.NODE_ENV === "production";
+        res.clearCookie("accessToken", { httpOnly: true, secure: isProduction, sameSite: isProduction ? "none" : "lax" });
+        res.clearCookie("refreshToken", { httpOnly: true, secure: isProduction, sameSite: isProduction ? "none" : "lax" });
 
         res.json({msg:"Logged out successfully"})
     }
