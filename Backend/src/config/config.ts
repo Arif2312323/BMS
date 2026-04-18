@@ -8,8 +8,7 @@ const _config = {
     hashSecret : process.env.HASH_SECRET as string,
     emailUsename : process.env.EMAIL_USERNAME as string,
     emailPassword : process.env.EMAIL_PASSWORD as string,
-    redisHost : process.env.REDIS_HOST as string,
-    redisPort : process.env.REDIS_PORT as string,
+    redisUrl : process.env.REDIS_URL as string,
     razorpayApiKey : process.env.RAZORPAY_API_KEY as string,
     razorpayApiKeySecret : process.env.RAZORPAY_API_KEY_SECRET as string,
 }
