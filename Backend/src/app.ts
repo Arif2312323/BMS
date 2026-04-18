@@ -12,7 +12,7 @@ const app = express();
 app.use(
   cors({
     credentials: true,
-    origin: ["https://bms-frontend-rr67.onrender.com"],
+    origin: ["https://bms-frontend-rr67.onrender.com", "http://localhost:5173"],
   })
 );
 app.use(cookieParser());

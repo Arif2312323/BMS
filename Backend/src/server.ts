@@ -14,7 +14,7 @@ const startServer = async () => {
 
   const io = new Server(server,{
     cors:{
-      origin:"https://bms-frontend-rr67.onrender.com",
+      origin:["https://bms-frontend-rr67.onrender.com","http://localhost:5173"],
       methods : ["GET","POST"],
       credentials : true
     }
